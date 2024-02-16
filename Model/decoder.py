@@ -14,7 +14,7 @@ class VAE_Decoder(nn.Sequential): ## each module will use to reduce the dimensio
 
 
             #(Batch_size,128, Height, Width) -> (Batch_size, 128, Height, Width)
-            VAE_ResidualBlock(256,128),
+            VAE_ResidualBlock(128,128),
 
 
             #(Batch_size,128, Height, Width) -> (Batch_size, 128, Height/2, Width/2)
