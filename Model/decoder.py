@@ -50,6 +50,9 @@ class VAE_Decoder(nn.Sequential): ## each module will use to reduce the dimensio
 
             VAE_AttentionBlock(512)
 
+            
+
+            VAE_ResidualBlock(512,512),
 
 
 
