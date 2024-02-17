@@ -12,4 +12,30 @@ class VAE_ResidualBlock(nn.Module):
         self.conv_2 = nn.Conv2d(out_channels, out_channels, kernel_size=3, padding=1)
 
 
+        if in_channels == out_channels:
+            self.residual_layer = nn.Identity()
+        else:
+            self.residual_layer = nn.Conv2d(in_channels, out_channels, kernel_size=1, padding=0)
+
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        # x -> (Batch_size, in_channels, Height, Width)
+
+        resdi =x
+
+        x=self.group_norm1(x) #this doest not change the shape of the tensor
+
+        x=F.silu(x) #this doest not change the shape of the tensor
+
+        x=self.conv_1(x)    #this doest not change the shape of the tensor
+
+        x=self.group_norm2(x) #this doest not change the shape of the tensor
+
+        x=F.silu(x)
+
+        x=self.conv_2(x)    #this doest not change the shape of the tensor
+
+
+        return x+self.residual_layer(resdi)
+
+
 
