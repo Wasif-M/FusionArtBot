@@ -29,6 +29,10 @@ class VAE_Attention(nn.Module):
         x=x.view((n,c,h,w))
 
 
+        x=+ residue
+
+        return x
+
 
 
 
