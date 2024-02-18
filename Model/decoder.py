@@ -3,6 +3,41 @@ from torch import nn
 from torch.nn import functional as F
 from attention import SelfAttention
 
+
+class VAE_Attention(nn.Module):
+    def __int__(self,channel: int):
+        super().__init__()
+        self.groupnorm = nn.GroupNorm(32, channels)  #channels is always 32 in stable diffusion
+        self.attention = SelfAttention(1,channels)
+    def forward(self,x: torch.Tensor) -> torch.Tensor:
+
+        # x:(Batch_size,channel/Features, Height, Width)
+        residue = x
+        n,c,h,w = x.shape
+        # x:(Batch_size,channel/Features, Height, Width) -> (Batch_size,channel/Features, Height*Width)
+        x=x.view(n,c,h*w)
+        # x:(Batch_size,channel/Features, Height, Width) -> (Batch_size,Height*Width,CHANNEL/Features)
+        x=x.transpose(-1,-2)
+
+        #(Batch_size,Height*Width,CHANNEL/Features) -> (Batch_size,Height*Width,CHANNEL/Features) doesnt change the shape
+        x=self.attention(x)
+
+        #(Batch_size,Height*Width,CHANNEL/Features)-> (Batch_size,channel/Features, Height*Width)
+        x=x.transpose(-1, -2)
+
+        #(Batch_size,channel/Features, Height*Width) -> (Batch_size,channel/Features, Height,Width)
+        x=x.view((n,c,h,w))
+
+
+
+
+
+
+
+
+
+
+
 class VAE_ResidualBlock(nn.Module):
     def __init__(self, in_channels, out_channels):
         super().__init__()
@@ -20,7 +55,7 @@ class VAE_ResidualBlock(nn.Module):
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         # x -> (Batch_size, in_channels, Height, Width)
 
-        resdi =x
+        residue =x
 
         x=self.group_norm1(x) #this doest not change the shape of the tensor
 
@@ -35,7 +70,7 @@ class VAE_ResidualBlock(nn.Module):
         x=self.conv_2(x)    #this doest not change the shape of the tensor
 
 
-        return x+self.residual_layer(resdi)
+        return x+self.residual_layer(residue)
 
 
 
