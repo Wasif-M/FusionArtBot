@@ -32,15 +32,7 @@ class VAE_Attention(nn.Module):
         x=+ residue
 
         return x
-
-
-
-
-
-
-
-
-
+    
 
 class VAE_ResidualBlock(nn.Module):
     def __init__(self, in_channels, out_channels):
@@ -75,6 +67,12 @@ class VAE_ResidualBlock(nn.Module):
 
 
         return x+self.residual_layer(residue)
+    
+
+
+class Decoder (nn.Sequential):
+    def __init__(self):
+        super().__init__()
 
 
 
