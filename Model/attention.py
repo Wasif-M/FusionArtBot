@@ -23,7 +23,7 @@ class SelfAttention(nn.Module):
         intermim_shape = (batch_size, seq_len, self.n_heads, self.d_heads) # Create the intermediate shape
 
         #(Batch_size, Seq_len, Dim) -> (Batch_size, Seq_len, Dim*3) -> 3 tensors of shape (Batch_size, Seq_len, Dim)
-        q, k , v= self.in_proj(x).chunk(3, dim=-1)  # Split the input into query,key and value
+        q, k , v= self.in_proj(x).chunk(3, dim=-1) 
 
         #(Batch_size, Seq_len, Dim)  -> (Batch_size, Seq_len,H, Dim/H) H represent heads -> (Batch_size, H, Seq_len, Dim/H) because we are taking transpose
         q=q.view(intermim_shape).transpose(1, 2)
