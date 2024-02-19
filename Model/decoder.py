@@ -72,7 +72,31 @@ class VAE_ResidualBlock(nn.Module):
 
 class Decoder (nn.Sequential):
     def __init__(self):
-        super().__init__()
+        super().__init__(
+            nn.Conv2d(4,4, kernel_size=1,padding=0),
+
+            nn.Conv2d(4,512,kernel_size=3,padding=1),
+
+            VAE_ResidualBlock(512,512),
+
+            VAE_Attention(512),
+
+
+            VAE_ResidualBlock(512,512),
+
+
+
+            VAE_ResidualBlock(512,512),
+
+
+            VAE_ResidualBlock(512,512),
+
+
+            #(Batch_size,412,Height/8,Width/8) -> (Batch_size,412,Height/8,Width/8)
+            VAE_ResidualBlock(512,512),
+
+
+        )
 
 
 
