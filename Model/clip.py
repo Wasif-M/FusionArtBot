@@ -21,7 +21,7 @@ class CLIPEmbeddings(nn.Module):
 
 class CLIP(nn.Module):
     def __init__(self):
-        self.embeddings = CLIPEmbeddings(49408, 768,77) # 49408 is the number of tokens in the vocabulary, 768 is the dimensionality of the text embeddings, and 77 is the dimensionality of the image embeddings
+        self.embeddings = CLIPEmbeddings(49425, 768,77) # 49408 is the number of tokens in the vocabulary, 768 is the dimensionality of the text embeddings, and 77 is the dimensionality of the image embeddings
 
         self.layers=nn.Module([
             CLIPLayer(12,768) for i in range(12):
