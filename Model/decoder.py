@@ -7,8 +7,8 @@ from attention import SelfAttention
 class VAE_Attention(nn.Module):
     def __int__(self,channel: int):
         super().__init__()
-        self.groupnorm = nn.GroupNorm(32, channels)  #channels is always 32 in stable diffusion
-        self.attention = SelfAttention(1,channels)
+        self.groupnorm = nn.GroupNorm(32, channel)  #channels is always 32 in stable diffusion
+        self.attention = SelfAttention(1,channel)
     def forward(self,x: torch.Tensor) -> torch.Tensor:
 
         # x:(Batch_size,channel/Features, Height, Width)
