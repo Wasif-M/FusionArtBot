@@ -13,8 +13,34 @@ class CLIPEmbeddings(nn.Module):
     def forward(self, tokens):
         #(Batch_size,Seq_len) -> (Batch_size,Seq_len,Dim)
         x=self.token_embeddings(tokens)
+        x =+self.position_embeddings
+        return x
 
+class CLIPLayer(nn.Module):
+    def __int__(self,n_head: int ,n_embd: int):
+        super().__init__()
+        self.layernorm_1=nn.LayerNorm(n_embd)
+        self.attention=SelfAttention(n_head,n_embd)
+        self.layernorm_2=nn.LayerNorm(n_embd)
+        self.linear_1=nn.Linear(n_embd,4*n_embd)
+        self.linear_2=nn.Linear(4*n_embd,n_embd)
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        #(Batch_size,Seq_len,Dim) -> (Batch_size,Seq_len,Dim)
+        x=self.layernorm_1(x)
+        x=self.attention(x, causal_mask=True)
+        x=+ residue
 
+        ## FEDFORWARD Layer
+
+        residue =x
+        x=self.layernorm_2(x)
+        x=self.linear_1(x)
+        x=x*torch.sigmoid(1.702*x)  # QuickGeLU activation function
+
+        x=self.linear_2(x)
+        x=+ residue
+
+        return x
 
 
 
@@ -23,10 +49,10 @@ class CLIP(nn.Module):
     def __init__(self):
         self.embeddings = CLIPEmbeddings(49408, 768,77) # 49408 is the number of tokens in the vocabulary, 768 is the dimensionality of the text embeddings, and 77 is the dimensionality of the image embeddings
 
-        self.layers=nn.Module([
-            CLIPLayer(12,768) for i in range(12):
+        self.layers=nn.Module ([
+            CLIPLayer(12,768) for i in range(12)
         ])
-        self.layersnorm=nn.LayerNorm(768)
+        self.layernorm=nn.LayerNorm(768)
 
 
 def forward(self, tokens: torch.LongTensor) -> torch.FloatTensor:
@@ -38,7 +64,7 @@ def forward(self, tokens: torch.LongTensor) -> torch.FloatTensor:
         state=layer(state)
 
     #(Batch_size,Seq_len,Dim)
-    output=self.layersnorm(state)
+    output=self.layernorm(state)
 
     return output
 
