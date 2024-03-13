@@ -33,11 +33,14 @@ class UNET(nn.Module):
         super().__init__()
 
         self.encoder = nn.ModuleList([
+            # (Batch_size,4, Height/8, Width/8) 
             SwitchSequential(nn.Conv2(4,320,kernel_size=3,padding=1)),
 
             SwitchSequential(UNET_ResidualBlock(320,320),UNET_AttionBlock(8,40)),
 
             SwitchSequential(UNET_ResidualBlock(320,320),UNET_AttionBlock(8,40)),
+
+            # (Batch_size,320, Height/8, Width/8) -> (Batch_size,320, Height/16, Width/16)
 
             SwitchSequential(nn.Conv2d(320,320,kernel_size=3,stride =2,padding=1)), #reducing the dimensionality of the image 
             
@@ -45,11 +48,58 @@ class UNET(nn.Module):
 
             SwitchSequential(UNET_ResidualBlocl(640,640,),UNET_AttionBlock(8,80)),
 
-            SwitchSequential(nn.Conv2d(640,640,kernel_size=3,stride =2,padding=1))
+            #(Batch_size,640, Height/16, Width/16) -> (Batch_size,640, Height/32, Width/32)
+
+            SwitchSequential(nn.Conv2d(640,640,kernel_size=3,stride =2,padding=1)),
 
             SwitchSequential(UNET_ResidualBlock(640,1240),UNET_AttionBlock(8,160)), # residual block increasing the features
 
             SwitchSequential(UNET_ResidualBlock(1240,1240),UNET_AttionBlock(8,160)),
+            # (Batch_size,1280, Height/32, Width/32) -> (Batch_size,1280, Height/64, Width/64)
+
+            SwitchSequential(nn.Conv2d(1280,1280,kernel_size=3,stride =2,padding=1)),
+
+            SwitchSequential(UNET_ResidualBlock(1280,1280)),
+
+                #(Batch_size,1280, Height/64, Width/64) -> (Batch_size,1280, Height/64, Width/64)
+            SwitchSequential(UNET_ResidualBlock(1280,1280)),
+        ])
+
+        self.bottelneck=SwitchSequential(
+            UNET_ResidualBlock(1280,1280),
+
+            UNET_AttionBlock(8,160),
+
+            UNET_ResidualBlock(1280,1280),
+
+        )
+
+        self.decoders=nn.ModuleList([
+            # we keep increasing the size of image and decreasing the number of faeatures in ths section
+            # (Batch_size,2560, Height/64, Width/64) -> (Batch_size,1280, Height/64, Width/64)
+            SwitchSequential(UNET_RESIDUALBlock(2560,1280)),
+
+            SwitchSequential(UNET_RESIDUALBlock(2560,1280)),
+
+            SwitchSequential(UNET_RESIDUALBlock(2560,1280), UpSample(1280)),
+
+            SwitchSequential(UNET_RESIDUALBlock(2560,1280),UNET_AttionBlock(8,160)),
+
+            SwitchSequential(UNET_RESIDUALBlock(2560,1280),UNET_AttionBlock(8,160)),
+
+            SwitchSequential(UNET_RESIDUALBlock(1920,1280),UNET_AttionBlock(8,160),UpSample(1280)),
+
+            SwitchSequential(UNET_RESIDUALBlock(1920,640),UNET_AttionBlock(8,80)),
+
+            SwitchSequential(UNET_RESIDUALBlock(1280,640),UNET_AttionBlock(8,80)),
+
+            SwitchSequential(UNET_RESIDUALBlock(960,640),UNET_AttionBlock(8,80),UpSample(640)),
+
+            SwitchSequential(UNET_RESIDUALBlock(960,320),UNET_AttionBlock(8,40)),
+
+            SwitchSequential(UNET_RESIDUALBlock(640,320),UNET_AttionBlock(8,80)),
+
+            SwitchSequential(UNET_RESIDUALBlock(640,320),UNET_AttionBlock(8,40)),
         ])
 class Diffusion(nn.Module):
     def self__init__(self):
