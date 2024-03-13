@@ -17,7 +17,40 @@ class TimeEmbedding(nn.Module):
         return x # (1,1280)
 
 
+class SwitchSequential(nn.Module):
+    def forward(self, x: torch.Tensor, context: torch.Tensor,time: torch.Tensor) -> torch.Tensor:
+        for layer in self:
+            if isinstance(layer, UNET_AttionBlock):
+                x=layer(x,context)
+            elif isinstance(layer, UNET_ResidualBlock):
+                x=layer(x,time)
+            else:
+                x=layer(x)
 
+
+class UNET(nn.Module):
+    def __init__(self):
+        super().__init__()
+
+        self.encoder = nn.ModuleList([
+            SwitchSequential(nn.Conv2(4,320,kernel_size=3,padding=1)),
+
+            SwitchSequential(UNET_ResidualBlock(320,320),UNET_AttionBlock(8,40)),
+
+            SwitchSequential(UNET_ResidualBlock(320,320),UNET_AttionBlock(8,40)),
+
+            SwitchSequential(nn.Conv2d(320,320,kernel_size=3,stride =2,padding=1)), #reducing the dimensionality of the image 
+            
+            SwitchSequential(UNET_ResidualBlocl(320,640,),UNET_AttionBlock(8,80)), # 640 is the number of channels in the image and 8 is number of heads and 80 is number of embeddings
+
+            SwitchSequential(UNET_ResidualBlocl(640,640,),UNET_AttionBlock(8,80)),
+
+            SwitchSequential(nn.Conv2d(640,640,kernel_size=3,stride =2,padding=1))
+
+            SwitchSequential(UNET_ResidualBlock(640,1240),UNET_AttionBlock(8,160)), # residual block increasing the features
+
+            SwitchSequential(UNET_ResidualBlock(1240,1240),UNET_AttionBlock(8,160)),
+        ])
 class Diffusion(nn.Module):
     def self__init__(self):
         self.time_embedding = nn.Embedding(320)
