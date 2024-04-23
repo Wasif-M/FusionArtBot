@@ -12,7 +12,7 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    min-height: 100vh;
+    min-height: 200vh;
 }
 .side-image{
     background-image: url("/static/image/image2.png");
